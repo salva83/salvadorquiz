@@ -30,6 +30,8 @@ app.use(session({
   secret: 'Quiz 2015',
   resave: false,
   saveUninitialized: true
+//  ,cookie:{maxAge:2*60*1000}  // parámetro que se podría implementar
+//para autologout tras un cierto tiempo
 }));
 
 app.use(methodOverride('_method'));
@@ -47,6 +49,17 @@ app.use(function(req, res, next) {
   // Hacer visible req.session en las vistas
   res.locals.session = req.session;
   next();
+});
+
+//autologout practica modulo 9
+app.use(function(req, res, next) {
+       if ((req.session.user) && (req.session.autologout)
+&& (Date.now() - req.session.autologout > 120000 )) { //2 minutos
+           delete req.session.user;
+           res.redirect("/logout");//redireccion accion logout
+        }
+       req.session.autologout = Date.now();
+       next();
 });
 
 
